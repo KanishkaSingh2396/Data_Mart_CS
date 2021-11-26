@@ -2,12 +2,12 @@
 
 ![image](https://user-images.githubusercontent.com/89623051/142603464-ad9b97d5-23ef-4af0-8b32-1f029cb3d8d4.png)
 
-For this case study there is only a single table: data_mart.weekly_sales
+## For this case study there is only a single table: data_mart.weekly_sales
 
 ![image](https://user-images.githubusercontent.com/89623051/142603675-1d5bc9df-160c-481a-8a70-e94c9074d051.png)
 
 
-The columns details about the dataset:
+## The columns details about the dataset:
 
 1. Data Mart has international operations using a multi-region strategy
 2. Data Mart has both, a retail and online platform in the form of a Shopify store front to serve their customers
@@ -15,19 +15,17 @@ The columns details about the dataset:
 4. transactions is the count of unique purchases made through Data Mart and sales is the actual dollar amount of purchases
 5. Each record in the dataset is related to a specific aggregated slice of the underlying sales data rolled up into a week_date value which represents the start of the sales week.
 
-Case Study Questions
+## Case Study Questions
 
-A. Data Cleansing Steps
+### A. Data Cleansing Steps
 
-In a single query, perform the following operations and generate a new table in the data_mart schema named clean_weekly_sales:
+#### 1. Convert the week_date to a DATE format
+#### 2. Add a week_number as the second column for each week_date value, for example any value from the 1st of January to 7th of January will be 1, 8th to 14th will be 2 etc
+#### 3. Add a month_number with the calendar month for each week_date value as the 3rd column
+#### 4. Add a calendar_year column as the 4th column containing either 2018, 2019 or 2020 values
+#### 5. Add a new column called age_band after the original segment column using the following mapping on the number inside the segment value
 
-1. Convert the week_date to a DATE format
-2. Add a week_number as the second column for each week_date value, for example any value from the 1st of January to 7th of January will be 1, 8th to 14th will be 2 etc
-3. Add a month_number with the calendar month for each week_date value as the 3rd column
-4. Add a calendar_year column as the 4th column containing either 2018, 2019 or 2020 values
-5. Add a new column called age_band after the original segment column using the following mapping on the number inside the segment value
-
-segment	age_band
+### segment	age_band
 
 1	Young Adults
 
@@ -35,18 +33,18 @@ segment	age_band
 
 3 or 4	Retirees
 
-Add a new demographic column using the following mapping for the first letter in the segment values:
+### Add a new demographic column using the following mapping for the first letter in the segment values:
 segment | demographic |
 
 C | Couples |
 
 F | Families |
 
-Ensure all null string values with an "unknown" string value in the original segment column as well as the new age_band and demographic columns
+#### Ensure all null string values with an "unknown" string value in the original segment column as well as the new age_band and demographic columns
 
-6. Generate a new avg_transaction column as the sales value divided by transactions rounded to 2 decimal places for each record
+#### 6. Generate a new avg_transaction column as the sales value divided by transactions rounded to 2 decimal places for each record
 
-Solution Query
+### Solution Query
 
 ```sql
 select 
@@ -81,16 +79,16 @@ Query Output
 
 
 
-Part B. Data Exploration
+### Part B. Data Exploration
 
-Question 1 What day of the week is used for each week_date value?
+#### Question 1 What day of the week is used for each week_date value?
 
 ```sql
 select to_char(week_date, 'day') as weekday from base limit 1
 ```
 ![image](https://user-images.githubusercontent.com/89623051/142609613-630d214d-db93-40c6-8f04-ccc0c99e6c68.png)
 
-Question 2 What range of week numbers are missing from the dataset?
+#### Question 2 What range of week numbers are missing from the dataset?
 
 ```sql
 WITH all_week_numbers AS (
@@ -108,7 +106,7 @@ WHERE EXISTS (
 
 ![image](https://user-images.githubusercontent.com/89623051/142627520-6ae3b0c1-61c8-4960-b3e4-e2609af09311.png)
 
-Question 3 How many total transactions were there for each year in the dataset?
+#### Question 3 How many total transactions were there for each year in the dataset?
 
 ```sql
 
@@ -120,7 +118,7 @@ order by calender_year
 
 ![image](https://user-images.githubusercontent.com/89623051/142628733-404cd87a-3147-44a4-9f70-3a26e8794340.png)
 
-Question 4 What is the total sales for each region for each month?
+#### Question 4 What is the total sales for each region for each month?
 
 ```sql
 select 
@@ -132,7 +130,7 @@ order by month_number
 
 ![image](https://user-images.githubusercontent.com/89623051/142630877-f86c723c-bf45-4ad2-8704-ef38f8110400.png)
 
-Question 4B What is the total sales for each region for first month?
+#### Question 4B What is the total sales for each region for first month?
 
 ```sql
 
@@ -153,7 +151,7 @@ where rn = 1
 ```
 ![image](https://user-images.githubusercontent.com/89623051/142631993-30c2c152-a77c-4caf-af80-35dd00103a2d.png)
 
-Question 5 What is the total count of transactions for each platform
+#### Question 5 What is the total count of transactions for each platform
 
 
 ```sql
@@ -168,7 +166,7 @@ group by platform
 
 ![image](https://user-images.githubusercontent.com/89623051/142633860-4864065d-2a7d-4505-bc77-74e068850ff1.png)
 
-Question 6 What is the percentage of sales for Retail vs Shopify for each month?
+#### Question 6 What is the percentage of sales for Retail vs Shopify for each month?
 
 ```sql
 with base as(
@@ -206,7 +204,7 @@ on retail_tb.month_starting = Shopify_tb.month_starting
 
 ![image](https://user-images.githubusercontent.com/89623051/142662792-9eeafb74-e052-4425-b2cb-fa0a6c1ddb18.png)
 
-What is the amount and percentage of sales by demographic for all year in the dataset?
+####  What is the amount and percentage of sales by demographic for all year in the dataset?
 
 ```sql
 select  dempgraphics as demographics, calender_year, sum(sales) as total_sales, round(100*(sum(sales)::numeric/40743634227), 2) as sales_percentage
@@ -218,7 +216,7 @@ order by calender_year asc,  demographics asc
 ![image](https://user-images.githubusercontent.com/89623051/142715714-3bde874d-2620-4274-9417-57094b4fa716.png)
 
 
-What is the amount and percentage of sales by demographic for each year in the dataset?
+####  What is the amount and percentage of sales by demographic for each year in the dataset?
 
 ```sql
 select  
@@ -235,9 +233,9 @@ order by calender_year asc,  demographics asc
 ![image](https://user-images.githubusercontent.com/89623051/142716527-954874d8-65b4-4b1a-90f2-380160e1d868.png)
 
 
-Which age_band and demographic values contribute the most to Retail sales?
+#### Which age_band and demographic values contribute the most to Retail sales?
 
-age_band sales contribution
+##### age_band sales contribution
 
 ```sql
 select  
@@ -251,7 +249,7 @@ from clean_weekly_sales
 group by age_band
 ```
 
-demographics sales contribution
+##### demographics sales contribution
 
 ```sql
 select  
@@ -266,7 +264,7 @@ group by demographics
 
 ```
 
-age_band and demographics contribution
+##### age_band and demographics contribution
 
 ```sql
 select
@@ -284,7 +282,7 @@ order by percentage_contribution desc
 
 ```
 
-Question 9 Can we use the avg_transaction column to find the average transaction size for each year for Retail vs Shopify? 
+#### Question 9 Can we use the avg_transaction column to find the average transaction size for each year for Retail vs Shopify? 
 If not - how would you calculate it instead?
 
 Approch One:
@@ -303,7 +301,7 @@ order by calender_year
 ![image](https://user-images.githubusercontent.com/89623051/142719459-2c1bbbad-f722-4066-86d7-381e4a7415e7.png)
 
 
-Approach Two:
+##### Approach Two:
 
 ```sql
 with base as (
@@ -331,7 +329,7 @@ on R.calender_year = S.calender_year
 
 ![image](https://user-images.githubusercontent.com/89623051/142719472-70e0e3a7-f44b-488d-a78e-3c420d3fab2d.png)
 
-Part C. Before & After Analysis
+### Part C. Before & After Analysis
 
 
 This technique is usually used when we inspect an important event and want to inspect the impact before and after a certain point in time.
@@ -343,7 +341,7 @@ We would include all week_date values for 2020-06-15 as the start of the period 
 Using this analysis approach - answer the following questions:
 
 
-Question 1
+#### Question 1
 
 What is the total sales for the 4 weeks before and after 2020-06-15? What is the growth or reduction rate in actual values and percentage of sales?
 
@@ -378,7 +376,7 @@ where calender_year = '2020'
 ![image](https://user-images.githubusercontent.com/89623051/142723147-6a961cf2-a613-49fc-ad6f-2f36e32119d6.png)
 
 
-Question 2: What about the entire 12 weeks before and after?
+#### Question 2: What about the entire 12 weeks before and after?
 
 ```sql
 select 
@@ -399,7 +397,7 @@ where calender_year = '2020'
 
 ![image](https://user-images.githubusercontent.com/89623051/142723326-e7a43cde-d5c9-46cd-bb17-70952fd76c33.png)
 
-Question 3: How do the sale metrics for these 2 periods before and after compare with the previous years in 2018 and 2019?
+#### Question 3: How do the sale metrics for these 2 periods before and after compare with the previous years in 2018 and 2019?
 
 4 weeks before and after impact
 
@@ -463,7 +461,7 @@ group by calender_year
 
 ![image](https://user-images.githubusercontent.com/89623051/142724317-ae1e2656-9038-4c23-825b-4a03d2383cd7.png)
 
-12 weeks before and after impact
+##### 12 weeks before and after impact
 
 ```sql
 
@@ -527,8 +525,9 @@ group by calender_year
 ![image](https://user-images.githubusercontent.com/89623051/142724459-77a1dbc6-9feb-4084-9c2a-82e0dd98642f.png)
 
 
-Part D. Bonus Question
-Which areas of the business have the highest negative impact in sales metrics performance in 2020 for the 12 week before and after period?
+### Part D. Bonus Question
+
+#### Which areas of the business have the highest negative impact in sales metrics performance in 2020 for the 12 week before and after period?
 
 1. region
 
@@ -568,7 +567,7 @@ group by region, calender_year
 
 ![image](https://user-images.githubusercontent.com/89623051/142724840-eb9bdf34-acef-4ca0-86b9-d4e0feb5958b.png)
 
-2. highest negative impact on platform sales metrics performance in 2020 for the 12 week before and after period
+#### 2. highest negative impact on platform sales metrics performance in 2020 for the 12 week before and after period
 
 ```sql
 select 
@@ -592,7 +591,7 @@ group by platform, calender_year
 
 ![image](https://user-images.githubusercontent.com/89623051/142724932-965d3bd1-9b2b-4db7-9093-7c0c7f311979.png)
 
-3. highest negative impact on age_band sales metrics performance in 2020 for the 12 week before and after period
+#### 3. highest negative impact on age_band sales metrics performance in 2020 for the 12 week before and after period
 
 ```sql
 select 
@@ -616,7 +615,7 @@ group by age_band, calender_year
 
 ![image](https://user-images.githubusercontent.com/89623051/142725069-d4d66807-0c2a-4380-9de2-a1bd9f39ff5e.png)
 
-4. highest negative impact on demographics sales metrics performance in 2020 for the 12 week before and after period
+#### 4. highest negative impact on demographics sales metrics performance in 2020 for the 12 week before and after period
 
 ```sql
 select 
@@ -639,7 +638,7 @@ group by demographics, calender_year
 ```
 ![image](https://user-images.githubusercontent.com/89623051/142725167-42bb7ed7-681e-4b8c-ab81-fdf78ee2ea3c.png)
 
-5. highest negative impact on demographics sales metrics performance in 2020 for the 12 week before and after period
+#### 5. highest negative impact on demographics sales metrics performance in 2020 for the 12 week before and after period
 
 ```sql
 select 
